@@ -1,0 +1,12 @@
+{
+  "environment": "Node v24.14.1, macOS arm64, local unthrottled, 100 pipeline iterations after one generation",
+  "offers": 660,
+  "uniqueItineraries": 580,
+  "generationMs": 47.84,
+  "validationAndMappingMs": 8.15,
+  "pipelineMedianMs": 3.01,
+  "pipelineP95Ms": 3.7,
+  "pipeline": "deduplicate + filter + best sort + all badges",
+  "timeFilterMedianMs": 0.6,
+  "timeFilterP95Ms": 0.69
+}

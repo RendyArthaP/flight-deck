@@ -1,0 +1,31 @@
+import type { Airport } from '../../shared/contracts/airports'
+export const airports: Airport[] = [
+  ['CGK', 'Jakarta', 'Indonesia', 'Soekarno-Hatta International', 'Asia/Jakarta', -6.12, 106.65],
+  ['HLP', 'Jakarta', 'Indonesia', 'Halim Perdanakusuma', 'Asia/Jakarta', -6.26, 106.89],
+  ['SIN', 'Singapore', 'Singapore', 'Changi Airport', 'Asia/Singapore', 1.36, 103.99],
+  ['DPS', 'Bali', 'Indonesia', 'I Gusti Ngurah Rai', 'Asia/Makassar', -8.75, 115.17],
+  ['BKK', 'Bangkok', 'Thailand', 'Suvarnabhumi Airport', 'Asia/Bangkok', 13.69, 100.75],
+  ['DMK', 'Bangkok', 'Thailand', 'Don Mueang International', 'Asia/Bangkok', 13.91, 100.61],
+  [
+    'KUL',
+    'Kuala Lumpur',
+    'Malaysia',
+    'Kuala Lumpur International',
+    'Asia/Kuala_Lumpur',
+    2.75,
+    101.7,
+  ],
+  ['SUB', 'Surabaya', 'Indonesia', 'Juanda International', 'Asia/Jakarta', -7.38, 112.79],
+  ['HKG', 'Hong Kong', 'Hong Kong', 'Hong Kong International', 'Asia/Hong_Kong', 22.31, 113.92],
+  ['NRT', 'Tokyo', 'Japan', 'Narita International', 'Asia/Tokyo', 35.77, 140.39],
+  ['HND', 'Tokyo', 'Japan', 'Haneda Airport', 'Asia/Tokyo', 35.55, 139.78],
+  ['ICN', 'Seoul', 'South Korea', 'Incheon International', 'Asia/Seoul', 37.46, 126.44],
+].map(([code, city, country, name, tz, lat, lon]) => ({
+  code: String(code),
+  city: String(city),
+  country: String(country),
+  name: String(name),
+  timezone: String(tz),
+  latitude: Number(lat),
+  longitude: Number(lon),
+}))

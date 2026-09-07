@@ -1,0 +1,1 @@
+{"root":["../.nuxt/nuxt.d.ts","./setup.ts","./component/results.test.ts","./component/search.test.ts","./e2e/home.spec.ts","./unit/flights.test.ts","./unit/search.test.ts"],"version":"6.0.3"}

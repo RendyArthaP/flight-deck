@@ -1,0 +1,8 @@
+{
+  "environment": "Local production server, Chromium, 1440x1100; single unthrottled sample including simulated delays and automation overhead",
+  "firstResultMs": 878,
+  "completeMs": 1762,
+  "elements": 1482,
+  "cards": 40,
+  "pageErrors": []
+}

@@ -24,60 +24,185 @@ A complete flight discovery and comparison portfolio built with Nuxt, Vue and Ty
 
 All 13 implementation phases are represented in the local application, testing and documentation. A public live demo has not been deployed; no hosting destination was supplied.
 
-## Run locally
+## Running the project
 
-Use Node 24 LTS (validated with **24.14.1**) and npm. Retain `package-lock.json`.
+### Prerequisites
+
+- Use Node.js 24; the version used in this development environment is **24.14.1**.
+- Use npm and retain `package-lock.json` to keep dependency versions consistent.
+- No database, API key, or `.env` file is required. The project's Nuxt server provides the mock data.
+
+### Development
+
+Run these commands from the project root, where `package.json` is located:
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Open http://localhost:3000. No API key, database or environment file is required.
+Open [http://localhost:3000](http://localhost:3000). Code changes update automatically while the development server is running. Press `Ctrl+C` to stop it.
+
+`npm ci` also runs `postinstall` (`nuxt prepare`) to generate Nuxt configuration and types in `.nuxt/`.
+
+If port 3000 is already in use:
+
+```sh
+npm run dev -- --port 3001
+```
+
+### Production build and preview
 
 ```sh
 npm run build
 npm run preview
 ```
 
-Production output uses Nitro's Node server: deploy `.output` and run `node .output/server/index.mjs`. `PORT` and `HOST` configure the listener. The server endpoints require a server deployment; this is not a static-only site.
-
-## Stack and structure
-
-| Layer           | Technology / responsibility                                            |
-| --------------- | ---------------------------------------------------------------------- |
-| App             | Existing Nuxt 4, Vue 3 Composition API, strict TypeScript              |
-| Design          | Tailwind 4 tokens, product CSS, original local SVG artwork             |
-| Server state    | TanStack Vue Query: airports, provider results and flight details      |
-| Client state    | Pinia: selected itinerary identity, never copied provider responses    |
-| Shareable state | Vue Router query parameters                                            |
-| API boundary    | Fetch → Zod DTO validation → explicit domain mapper                    |
-| Mock backend    | Nuxt server endpoints, deterministic generator and provider simulation |
-| Quality         | Vitest, Vue Testing Library, Playwright, Nuxt ESLint and Prettier      |
-
-`app/` owns pages/layout and UI primitives; `features/` owns search/filter behavior; `shared/` contains contracts and formatting; `server/` owns airport/provider data and generation. See [architecture.md](docs/architecture.md) for state ownership, lifecycle and trade-offs.
-
-No additional dependencies were needed for Phases 3–13. Tooling retains two compatibility pins within accepted dependency ranges: Nuxt ESLint's `eslint-plugin-regexp` at 3.1.1 and `@vue/test-utils` at 2.4.6, to support the installed Node runtime. No forced installation or peer-dependency bypass is used.
-
-## Verification
+Open the address shown in the terminal. The build produces the `.output/` directory. To run the build directly as a Node server:
 
 ```sh
-npm run typecheck
-npm run lint
-npm run format:check
-npm test
-npm run build
+node .output/server/index.mjs
+```
+
+On macOS/Linux, configure the host and port as follows:
+
+```sh
+PORT=3000 HOST=127.0.0.1 node .output/server/index.mjs
+```
+
+Deployment requires a server that can run Node.js because flight search uses Nuxt API endpoints. The `npm run generate` script is available, but static output alone does not provide the APIs the application needs.
+
+## Tech stack
+
+The major versions below reflect the dependencies in `package.json`; installed versions are locked in `package-lock.json`.
+
+| Layer                | Technology                               | Responsibility                                                            |
+| -------------------- | ---------------------------------------- | ------------------------------------------------------------------------- |
+| Framework            | Nuxt 4                                   | File-based routing, layouts, SSR, and server endpoints through Nitro      |
+| UI                   | Vue 3 Composition API                    | Components and interface interactions                                     |
+| Language             | TypeScript 6 with strict mode            | Application types; Vue components are checked with `vue-tsc`              |
+| Styling              | Tailwind CSS 4 and custom CSS            | Visual tokens, responsive layouts, and component styling                  |
+| Server state         | TanStack Vue Query 5                     | API caching, loading, retries, and request cancellation                   |
+| Client state         | Pinia 4                                  | Stores the selected itinerary identity                                    |
+| URL state            | Vue Router 5                             | Search, filters, sorting, pagination, and details in URL query parameters |
+| Validation           | Zod 4                                    | Runtime validation of search criteria and API data                        |
+| Demo backend         | Nuxt server routes                       | Airport catalog and simulated provider offers                             |
+| Unit/component tests | Vitest 5, Vue Testing Library, happy-dom | Domain logic and component interactions                                   |
+| E2E tests            | Playwright                               | Application flows in desktop Chromium and mobile emulation                |
+| Code quality         | Nuxt ESLint and Prettier                 | Linting and code formatting                                               |
+
+## Project structure
+
+```text
+flight-deck/
+├── app/
+│   ├── assets/css/           # Main CSS and visual tokens
+│   ├── components/           # Artwork and shared UI components
+│   │   └── ui/               # AppIcon and AppDialog
+│   ├── layouts/              # Application layouts
+│   ├── pages/                # Pages and Nuxt routing
+│   │   ├── index.vue         # / — homepage and search form
+│   │   ├── flights.vue       # /flights — search results
+│   │   └── review.vue        # /review — selected itinerary review
+│   ├── plugins/              # Vue Query registration
+│   └── app.vue               # Application root
+├── features/
+│   ├── airport-search/
+│   │   ├── api/              # Airport search API client
+│   │   └── data/             # Airport display catalog
+│   ├── flight-search/
+│   │   ├── api/              # Flight search and detail API clients
+│   │   ├── components/       # Form, airport picker, cards, and journey details
+│   │   ├── composables/      # Provider request orchestration with Vue Query
+│   │   ├── schemas/          # Search input validation
+│   │   └── utils/            # URL parsing, deduplication, filtering, and ranking
+│   └── flight-filters/
+│       └── components/       # Flight results filter controls
+├── server/
+│   ├── api/                  # Airport and flight HTTP endpoints
+│   ├── data/                 # Server airport data
+│   └── utils/                # Flight generator and simulated provider delays
+├── shared/
+│   ├── contracts/            # Zod schemas, DTO/domain types, and API data mappers
+│   └── utils/                # Currency, date, duration, and timezone formatting
+├── stores/                   # Pinia store for the selected itinerary
+├── public/                   # Static assets such as favicons and robots.txt
+├── tests/
+│   ├── unit/                 # Domain logic and validation tests
+│   ├── component/            # Vue component interaction tests
+│   ├── e2e/                  # Application flow tests with Playwright
+│   ├── setup.ts              # DOM matchers and component cleanup
+│   ├── tsconfig.json         # Test-specific TypeScript configuration
+│   └── vue.d.ts              # .vue import declarations for plain TypeScript
+├── scripts/                  # Screenshot capture and results logic profiling
+├── docs/                     # Architecture, screenshots, and performance data
+├── nuxt.config.ts            # Nuxt, module, styling, and TypeScript configuration
+├── vitest.config.ts          # Unit/component test configuration
+├── playwright.config.ts      # Desktop/mobile E2E configuration
+├── tsconfig.json             # TypeScript project references
+└── package.json              # Dependencies and project scripts
+```
+
+The `.nuxt/`, `.output/`, and `node_modules/` directories are generated by tooling. Make application changes in the source directories above.
+
+### Responsibilities
+
+- `app/` assembles pages, layouts, and shared UI. Add new pages in `app/pages/`.
+- `features/` organizes business behavior by feature. Flight search and form changes belong in `features/flight-search/`.
+- `server/` handles HTTP requests and provides mock data.
+- `shared/` contains data contracts and utilities used by both client and server.
+- `stores/` holds user selections. Vue Query manages provider responses, while state that must be shareable or restored after refresh lives in the URL.
+
+### Data flow and API
+
+Search form → criteria validation → URL query parameters → requests to each provider → response validation and mapping → deduplication → filtering/sorting → results display.
+
+| Endpoint                   | Purpose                                                               |
+| -------------------------- | --------------------------------------------------------------------- |
+| `GET /api/airports?q=...`  | Looks up airports for autocomplete                                    |
+| `POST /api/flights/search` | Accepts `{ criteria, provider }` and returns offers from one provider |
+| `GET /api/flights/:id`     | Retrieves itinerary details by identity                               |
+
+The three mock providers (Alpha, Bravo, Charlie) have delays of 400, 900, and 1500 ms. Results appear progressively as each request completes. Charlie can fail deterministically for certain criteria; results from the other providers remain usable.
+
+See [docs/architecture.md](docs/architecture.md) for more on state ownership, request lifecycles, deduplication, and design decisions.
+
+## Development and testing commands
+
+| Command                | Purpose                                   |
+| ---------------------- | ----------------------------------------- |
+| `npm run dev`          | Starts the development server             |
+| `npm run build`        | Creates a production build                |
+| `npm run preview`      | Previews the production build             |
+| `npm run typecheck`    | Checks project types through Nuxt         |
+| `npm run lint`         | Checks ESLint rules                       |
+| `npm run format:check` | Checks formatting without modifying files |
+| `npm run format`       | Formats project files with Prettier       |
+| `npm test`             | Runs unit and component tests once        |
+| `npm run test:watch`   | Runs Vitest in watch mode                 |
+| `npm run test:e2e`     | Runs Playwright browser tests             |
+
+To run a single test file:
+
+```sh
+npm test -- tests/component/search.test.ts
+```
+
+To check test file types and their imported Vue components:
+
+```sh
+npx vue-tsc --noEmit -p tests/tsconfig.json
+```
+
+For E2E tests, install Chromium during initial setup, then build the application before running the tests:
+
+```sh
 npx playwright install chromium
+npm run build
 npm run test:e2e
 ```
 
-The browser suite starts its own production server on **127.0.0.1:3100**. Build first and keep that port free. It never reuses an unrelated development server.
-
-Verified locally: **34 unit/component tests and 18 desktop/mobile E2E scenarios pass**, alongside typecheck, lint, formatting and production build.
-
-Unit/component coverage includes validation, mapper fields, money/duration/timezone formatting, deterministic generation, return segment consistency, seat capacity, full-journey fingerprinting, cheapest-offer policy, ranking, filters, URL parsing and meaningful component interactions.
-
-Browser coverage runs on desktop and mobile Chromium: complete home-to-review journey, refresh, keyboard dialog behavior, progressive deduplication, local filtering without extra search requests, partial failure, malformed payloads with recovery, cancelled stale searches, genuine empty results, airport retry, invalid links and transport timeout.
+Playwright starts its own production server at **http://127.0.0.1:3100**. Keep port 3100 free; you do not need to run `npm run dev` for these tests. Rebuild after application code changes before running E2E tests.
 
 ## Reproduce screenshots and measurements
 
